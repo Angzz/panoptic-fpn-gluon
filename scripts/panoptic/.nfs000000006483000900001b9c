@@ -1,0 +1,74 @@
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Internal Python error in the inspect module.
+Below is the traceback from this internal error.
+
+
+Unfortunately, your original traceback can not be constructed.
+
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+[Epoch 0][Batch 99], Speed: 2.765 samples/sec, RPN_Conf=0.386,RPN_SmoothL1=0.103,RCNN_CrossEntropy=0.462,RCNN_SmoothL1=0.442,RCNN_Mask=nan,RPNAcc=0.828,RPNL1Loss=0.645,RCNNAcc=0.929,RCNNL1Loss=1.791,MaskAcc=0.573,MaskFGAcc=0.587
+[Epoch 0][Batch 199], Speed: 2.882 samples/sec, RPN_Conf=0.319,RPN_SmoothL1=0.095,RCNN_CrossEntropy=0.430,RCNN_SmoothL1=0.443,RCNN_Mask=nan,RPNAcc=0.856,RPNL1Loss=0.610,RCNNAcc=0.914,RCNNL1Loss=1.995,MaskAcc=0.592,MaskFGAcc=0.593
+[Epoch 0][Batch 299], Speed: 2.876 samples/sec, RPN_Conf=0.263,RPN_SmoothL1=0.088,RCNN_CrossEntropy=0.437,RCNN_SmoothL1=0.451,RCNN_Mask=nan,RPNAcc=0.883,RPNL1Loss=0.589,RCNNAcc=0.898,RCNNL1Loss=2.119,MaskAcc=0.617,MaskFGAcc=0.611
+Namespace(batch_size=1, dataset='citys', disable_hybridization=False, epochs=700, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='430,590', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='panoptic_fpn_resnet50_v1b_citys', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
+Start training from [Epoch 0]
+[Epoch 0][Batch 99], Speed: 2.665 samples/sec, RPN_Conf=0.397,RPN_SmoothL1=0.105,RCNN_CrossEntropy=0.459,RCNN_SmoothL1=0.439,RCNN_Mask=nan,RPNAcc=0.825,RPNL1Loss=0.639,RCNNAcc=0.931,RCNNL1Loss=1.777,MaskAcc=0.575,MaskFGAcc=0.573
