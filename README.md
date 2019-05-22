@@ -19,13 +19,13 @@ This is an unofficial implementation of [Panoptic-FPN](https://arxiv.org/abs/190
 
 ## Preparation
 ### Cityscapes
-1.Download `Cityscapes` dataset follow the official [tutorials](https://gluon-cv.mxnet.io/build/examples_datasets/cityscapes.html#sphx-glr-build-examples-datasets-cityscapes-py) and create a soft link.
+1. Download `Cityscapes` dataset follow the official [tutorials](https://gluon-cv.mxnet.io/build/examples_datasets/cityscapes.html#sphx-glr-build-examples-datasets-cityscapes-py) and create a soft link.
   ```Shell
   ln -s $DOWNLOAD_PATH ~/.mxnet/datasets/citys
   ```
    You can also download from [Cityscapes](https://www.cityscapes-dataset.com/) and execute the command above.
 
-2.Preparing the panoptic images follow the official code [here.](https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/preparation/createPanopticImgs.py) You can clone this script and execute:
+2. Preparing the panoptic images follow the official code [here.](https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/preparation/createPanopticImgs.py) You can clone this script and execute:
   ```Shell
   python3 createPanopticImgs.py --dataset-folder ~/.mxnet/datasets/citys/gtFine/ --output-folder ~/.mxnet/datasets/citys/gtFine/
   ```
