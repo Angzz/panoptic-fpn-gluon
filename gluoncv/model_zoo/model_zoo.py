@@ -27,6 +27,7 @@ from .squeezenet import *
 from .ssd import *
 from .vgg import *
 from .yolo import *
+from .panoptic import *
 
 __all__ = ['get_model', 'get_model_list']
 
@@ -91,6 +92,9 @@ _models = {
     'ssd_512_mobilenet1.0_voc': ssd_512_mobilenet1_0_voc,
     'ssd_512_mobilenet1.0_coco': ssd_512_mobilenet1_0_coco,
     'ssd_512_mobilenet1.0_custom': ssd_512_mobilenet1_0_custom,
+    'ssd_300_mobilenet0.25_voc': ssd_300_mobilenet0_25_voc,
+    'ssd_300_mobilenet0.25_coco': ssd_300_mobilenet0_25_coco,
+    'ssd_300_mobilenet0.25_custom': ssd_300_mobilenet0_25_custom,
     'faster_rcnn_resnet50_v1b_voc': faster_rcnn_resnet50_v1b_voc,
     'faster_rcnn_resnet50_v1b_coco': faster_rcnn_resnet50_v1b_coco,
     'faster_rcnn_fpn_resnet50_v1b_coco': faster_rcnn_fpn_resnet50_v1b_coco,
@@ -164,6 +168,9 @@ _models = {
     'yolo3_mobilenet1.0_coco': yolo3_mobilenet1_0_coco,
     'yolo3_mobilenet1.0_voc': yolo3_mobilenet1_0_voc,
     'yolo3_mobilenet1.0_custom': yolo3_mobilenet1_0_custom,
+    'yolo3_mobilenet0.25_coco': yolo3_mobilenet0_25_coco,
+    'yolo3_mobilenet0.25_voc': yolo3_mobilenet0_25_voc,
+    'yolo3_mobilenet0.25_custom': yolo3_mobilenet0_25_custom,
     'nasnet_4_1056': nasnet_4_1056,
     'nasnet_5_1538': nasnet_5_1538,
     'nasnet_7_1920': nasnet_7_1920,
@@ -198,6 +205,7 @@ _models = {
     'ssd_512_mobilenet1.0_voc_int8': ssd_512_mobilenet1_0_voc_int8,
     'ssd_512_resnet50_v1_voc_int8': ssd_512_resnet50_v1_voc_int8,
     'ssd_512_vgg16_atrous_voc_int8': ssd_512_vgg16_atrous_voc_int8,
+    'panoptic_fpn_resnet50_v1b_citys': panoptic_fpn_resnet50_v1b_citys,
 }
 
 

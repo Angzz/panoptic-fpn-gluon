@@ -11,6 +11,7 @@ from .mscoco.instance import COCOInstance
 from .mscoco.segmentation import COCOSegmentation
 from .mscoco.keypoints import COCOKeyPoints
 from .cityscapes import CitySegmentation
+from .cityscapes_panoptic import CitysPanoptic
 from .pascal_voc.segmentation import VOCSegmentation
 from .pascal_aug.segmentation import VOCAugSegmentation
 from .ade20k.segmentation import ADE20KSegmentation
@@ -25,6 +26,7 @@ datasets = {
     'pascal_aug': VOCAugSegmentation,
     'coco' : COCOSegmentation,
     'citys' : CitySegmentation,
+    'citys_panoptic': CitysPanoptic,
 }
 
 def get_segmentation_dataset(name, **kwargs):
