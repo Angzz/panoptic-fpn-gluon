@@ -1,109 +1,53 @@
-# Gluon CV Toolkit
+# Panoptic Feature Pyramid Networks
 
-[![Build Status](http://ci.mxnet.io/job/gluon-cv/job/master/badge/icon)](http://ci.mxnet.io/job/gluon-cv/job/master/)
-[![GitHub license](http://dmlc.github.io/img/apache2.svg)](./LICENSE)
-[![Code Coverage](http://gluon-cv.mxnet.io/coverage.svg?)](http://gluon-cv.mxnet.io/coverage.svg)
-[![PyPI](https://img.shields.io/pypi/v/gluoncv.svg)](https://pypi.python.org/pypi/gluoncv)
-[![PyPI Pre-release](https://img.shields.io/badge/pypi--prerelease-v0.5.0-ff69b4.svg)](https://pypi.org/project/gluoncv/#history)
-[![Downloads](http://pepy.tech/badge/gluoncv)](http://pepy.tech/project/gluoncv)
+This is an unofficial implementation of [Panoptic-FPN](https://arxiv.org/abs/1901.02446) in a [gluon-cv](http://gluon-cv.mxnet.io) style, we implemented this framework in a fully [Gluon](https://mxnet.incubator.apache.org/versions/master/gluon/index.html) API, please stay tuned! 
 
-| [Installation](http://gluon-cv.mxnet.io) | [Documentation](http://gluon-cv.mxnet.io) | [Tutorials](http://gluon-cv.mxnet.io) |
+## Main Results
+* TODO
 
-GluonCV provides implementations of the state-of-the-art (SOTA) deep learning models in computer vision.
+## Installation 
+1. Install cuda `10.0` and mxnet `1.4.0`.
+  ```Shell
+  sudo pip3 install mxnet-cu100==1.4.0.post0
+  ```
+2. Clone the code, and install gluoncv with ``setup.py``.
+  ```Shell
+  cd fcos-gluon-cv
+  sudo python3 setup.py build
+  sudo python3 setup.py install
+  ```
 
-It is designed for engineers, researchers, and
-students to fast prototype products and research ideas based on these
-models. This toolkit offers four main features:
+## Preparation
+### Cityscapes
+1. Download `Cityscapes` datasets follow the official [tutorials](https://gluon-cv.mxnet.io/build/examples_datasets/cityscapes.html#sphx-glr-build-examples-datasets-cityscapes-py) and create a soft link.
+  ```Shell
+  ln -s $DOWNLOAD_PATH ~/.mxnet/datasets/citys
+  ```
+   You can also download from [Cityscapes](https://www.cityscapes-dataset.com/) and execute the command above.
 
-1. Training scripts to reproduce SOTA results reported in research papers
-2. A large number of pre-trained models
-3. Carefully designed APIs that greatly reduce the implementation complexity
-4. Community supports
+2. Create Panoptic images for training and Inference, the code can be found [here](https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/preparation/createPanopticImgs.py). Then execute the command below
+  ```Shell
+  python3 createPanopticImgs.py --dataset-folder ~/.mxnet/datasets/citys/gtFine/ --output-folder ~/.mxnet/datasets/citys/gtFine/
+  ```
+   
+3. More preparations can also refer to [GluonCV](https://gluon-cv.mxnet.io/index.html).
 
-# Supported Applications
+4. All experiments are performed on `8 * 2080ti` GPU with `Python3.5`, `cuda10.0` and `cudnn7.5.0`.
+### COCO
+* TODO
 
-| Application  | Illustration  | Available Models |
-|:-----------------------:|:---:|:---:|
-| [Image Classification:](https://gluon-cv.mxnet.io/model_zoo/classification.html) <br/>recognize an object in an image.  | <a href="https://gluon-cv.mxnet.io/model_zoo/classification.html"><img  src="docs/_static/image-classification.png" alt="classification" height="200"/></a>  | 50+ models, including <br/><a href="https://gluon-cv.mxnet.io/model_zoo/classification.html#resnet">ResNet</a>, <a href="https://gluon-cv.mxnet.io/model_zoo/classification.html#mobilenet">MobileNet</a>, <br/><a href="https://gluon-cv.mxnet.io/model_zoo/classification.html#densenet">DenseNet</a>, <a href="https://gluon-cv.mxnet.io/model_zoo/classification.html#vgg">VGG</a>, ... |
-| [Object Detection:](https://gluon-cv.mxnet.io/model_zoo/detection.html) <br/>detect multiple objects with their <br/> bounding boxes in an image.     |  <a href="https://gluon-cv.mxnet.io/model_zoo/detection.html"><img src="docs/_static/object-detection.png" alt="detection" height="200"/></a> | <a href="https://gluon-cv.mxnet.io/model_zoo/detection.html#faster-rcnn">Faster RCNN</a>, <a href="https://gluon-cv.mxnet.io/model_zoo/detection.html#ssd">SSD</a>, <a href="https://gluon-cv.mxnet.io/model_zoo/detection.html#yolo-v3">Yolo-v3</a> |
-| [Semantic Segmentation:](https://gluon-cv.mxnet.io/model_zoo/segmentation.html#semantic-segmentation) <br/>associate each pixel of an image <br/> with a categorical label. |  <a href="https://gluon-cv.mxnet.io/model_zoo/segmentation.html#semantic-segmentation"><img src="docs/_static/semantic-segmentation.png" alt="semantic" height="200"/></a> | <a href="https://gluon-cv.mxnet.io/model_zoo/segmentation.html#semantic-segmentation">FCN</a>, <a href="https://gluon-cv.mxnet.io/model_zoo/segmentation.html#semantic-segmentation">PSP</a>, <a href="https://gluon-cv.mxnet.io/model_zoo/segmentation.html#semantic-segmentation">DeepLab v3</a> |
-| [Instance Segmentation:](https://gluon-cv.mxnet.io/model_zoo/segmentation.html#instance-segmentation) <br/>detect objects and associate <br/> each pixel inside object area with an <br/> instance label. | <a href="https://gluon-cv.mxnet.io/model_zoo/segmentation.html#instance-segmentation"><img src="docs/_static/instance-segmentation.png" alt="instance" height="200"/></a> | <a href="https://gluon-cv.mxnet.io/model_zoo/segmentation.html#instance-segmentation">Mask RCNN</a>|
-| [Pose Estimation:](https://gluon-cv.mxnet.io/model_zoo/pose.html) <br/>detect human pose <br/> from images. | <a href="https://gluon-cv.mxnet.io/model_zoo/pose.html"><img src="docs/_static/pose-estimation.svg" alt="pose" height="200"/></a> | <a href="https://gluon-cv.mxnet.io/model_zoo/pose.html#simple-pose-with-resnet">Simple Pose</a>|
-| [GAN:](https://github.com/dmlc/gluon-cv/tree/master/scripts/gan) <br/>generate visually deceptive images | <a href="https://github.com/dmlc/gluon-cv/tree/master/scripts/gan"><img src="https://github.com/dmlc/gluon-cv/raw/master/scripts/gan/wgan/fake_samples_400000.png" alt="lsun" height="200"/></a> | <a href="https://github.com/dmlc/gluon-cv/tree/master/scripts/gan/wgan">WGAN</a>, <a href="https://github.com/dmlc/gluon-cv/tree/master/scripts/gan/cycle_gan">CycleGAN</a> |
-| [Person Re-ID:](https://github.com/dmlc/gluon-cv/tree/master/scripts/re-id/baseline) <br/>re-identify pedestrians across scenes | <a href="https://github.com/dmlc/gluon-cv/tree/master/scripts/re-id/baseline"><img src="https://user-images.githubusercontent.com/3307514/46702937-f4311800-cbd9-11e8-8eeb-c945ec5643fb.png" alt="re-id" height="160"/></a> |<a href="https://github.com/dmlc/gluon-cv/tree/master/scripts/re-id/baseline">Market1501 baseline</a> |
 
-# Installation
-
-GluonCV supports Python 2.7/3.5 or later. The easiest way to install is via pip.
-
-## Stable Release
-The following commands install the stable version of GluonCV and MXNet:
-
-```bash
-pip install gluoncv --upgrade
-pip install mxnet-mkl --upgrade
-# if cuda 9.2 is installed
-pip install mxnet-cu92mkl --upgrade
+## Structure
+```Shell
+* Model : $ROOT/gluoncv/model_zoo/panoptic
+* Train & valid scripts : $ROOT/scripts/panoptic
 ```
 
-**The latest stable version of GluonCV is 0.4 and depends on mxnet >= 1.4.0**
+## Training & Inference 
+1. Clone the training scripts [here](https://github.com/Angzz/panoptic-fpn-gluon/blob/master/scripts/panoptic/train_panoptic_fpn.py), then train `panoptic_fpn_resnet50_v1b_citys` with:
+  ```Shell
+  python3 train_panoptic_fpn.py --network resnet50_v1b --gpus 0,1,2,3,4,5,6,7 --num-workers 32 --batch-size 8 --log-interval 10 
+  ```
 
-## Nightly Release
-
-You may get access to latest features and bug fixes with the following commands which install the nightly build of GluonCV and MXNet:
-
-```bash
-pip install gluoncv --pre --upgrade
-pip install mxnet-mkl --pre --upgrade
-# if cuda 9.2 is installed
-pip install mxnet-cu92mkl --pre --upgrade
-```
-
-There are multiple versions of MXNet pre-built package available. Please refer to [mxnet packages](https://gluon-crash-course.mxnet.io/mxnet_packages.html) if you need more details about MXNet versions.
-
-# Docs 📖
-GluonCV documentation is available at [our website](https://gluon-cv.mxnet.io/index.html).
-
-# Examples
-
-All tutorials are available at [our website](https://gluon-cv.mxnet.io/index.html)!
-
-- [Image Classification](http://gluon-cv.mxnet.io/build/examples_classification/index.html)
-
-- [Object Detection](http://gluon-cv.mxnet.io/build/examples_detection/index.html)
-
-- [Semantic Segmentation](http://gluon-cv.mxnet.io/build/examples_segmentation/index.html)
-
-- [Instance Segmentation](http://gluon-cv.mxnet.io/build/examples_instance/index.html)
-
-- [Generative Adversarial Network](https://github.com/dmlc/gluon-cv/tree/master/scripts/gan)
-
-- [Person Re-identification](https://github.com/dmlc/gluon-cv/tree/master/scripts/re-id/)
-
-# Resources
-
-Check out how to use GluonCV for your own research or projects.
-
-- For background knowledge of deep learning or CV, please refer to the open source book [*Dive into Deep Learning*](http://diveintodeeplearning.org/). If you are new to Gluon, please check out [our 60-minute crash course](http://gluon-crash-course.mxnet.io/).
-- For getting started quickly, refer to notebook runnable examples at [Examples](https://gluon-cv.mxnet.io/build/examples_classification/index.html).
-- For advanced examples, check out our [Scripts](http://gluon-cv.mxnet.io/master/scripts/index.html).
-- For experienced users, check out our [API Notes](https://gluon-cv.mxnet.io/api/data.datasets.html#).
-
-# Citation
-
-If you feel our code or models helps in your research, please kindly cite our papers:
-
-```
-@article{he2018bag,
-  title={Bag of Tricks for Image Classification with Convolutional Neural Networks},
-  author={He, Tong and Zhang, Zhi and Zhang, Hang and Zhang, Zhongyue and Xie, Junyuan and Li, Mu},
-  journal={arXiv preprint arXiv:1812.01187},
-  year={2018}
-}
-
-@article{zhang2019bag,
-  title={Bag of Freebies for Training Object Detection Neural Networks},
-  author={Zhang, Zhi and He, Tong and Zhang, Hang and Zhang, Zhongyue and Xie, Junyuan and Li, Mu},
-  journal={arXiv preprint arXiv:1902.04103},
-  year={2019}
-}```
+## Reference 
+* **Panoptic FPN:** Alexander Kirillov, Ross Girshick, Kaiming He, Piotr Dollár.<br />"Panoptic Feature Pyramid Networks." CVPR (2019 **oral**). [[paper](https://arxiv.org/pdf/1901.02446.pdf)] [[unofficial code](https://github.com/Angzz/panoptic-fpn-gluon)]
