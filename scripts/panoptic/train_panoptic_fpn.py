@@ -18,10 +18,9 @@ from gluoncv import utils as gutils
 from gluoncv.model_zoo import get_model
 from gluoncv.data import batchify
 from gluoncv.data import get_segmentation_dataset
-from gluoncv.data.transforms.presets.panoptic import PanopticFPNDefaultTrainTransform, \
-        PanoptocFPNDefaultValTransform
+from gluoncv.data.transforms.presets.panoptic import PanopticFPNDefaultTrainTransform
 from gluoncv.utils.metrics.coco_instance import COCOInstanceMetric
-from gluoncv.loss import SoftmaxCrossEntropyLoss
+# from gluoncv.loss import SoftmaxCrossEntropyLoss
 
 
 def parse_args():
@@ -83,7 +82,7 @@ def parse_args():
     args.epochs = int(args.epochs) if args.epochs else 26
     args.lr_decay_epoch = args.lr_decay_epoch if args.lr_decay_epoch else '17,23'
     args.lr = float(args.lr) if args.lr else 0.00125
-    args.lr_warmup = args.lr_warmup if args.lr_warmup else 8000
+    args.lr_warmup = int(args.lr_warmup) if args.lr_warmup else 8000
     args.wd = float(args.wd) if args.wd else 1e-4
     num_gpus = len(args.gpus.split(','))
     if num_gpus == 1:
@@ -222,6 +221,43 @@ class MaskFGAccMetric(mx.metric.EvalMetric):
         self.num_inst += num_inst.asscalar()
 
 
+class SegAccMetric(mx.metric.EvalMetric):
+    def __init__(self):
+        super(SegAccMetric, self).__init__('SegAcc')
+
+    def update(self, labels, preds):
+        rcnn_segms = preds[0][0]
+        labels = labels[0][0]
+
+        pred_label = mx.nd.softmax(rcnn_segms, axis=0)
+        pred_label = mx.nd.argmax(pred_label, axis=0)
+        pred_label = pred_label.astype('int32')
+
+        valid_mask = labels != -1
+        num_inst = mx.nd.sum(valid_mask)
+        num_acc = mx.nd.sum((pred_label == labels) * valid_mask)
+
+        self.sum_metric += num_acc.asscalar()
+        self.num_inst += num_inst.asscalar()
+
+
+class SoftmaxCrossEntropyLoss(gluon.loss.Loss):
+    def __init__(self, batch_axis=0, ignore_label=-1, from_softmax=True,
+            eps=1e-5, **kwargs):
+        super(SoftmaxCrossEntropyLoss, self).__init__(None, batch_axis, **kwargs)
+        self._ignore_label = ignore_label
+        self._from_softmax = from_softmax
+        self._eps = eps
+
+    def hybrid_forward(self, F, pred, label):
+        """Compute loss"""
+        mask = label >= 0
+        vlabel = label * mask
+        loss = -F.pick(F.log(pred + self._eps), vlabel, axis=1, keepdims=False)
+        loss = F.where(mask, loss, F.zeros_like(loss))
+        return F.sum(loss) / F.maximum(F.sum(mask), 1).astype(loss.dtype)
+
+
 def get_dataset(dataset):
     if dataset.lower() == 'citys':
         train_dataset = get_segmentation_dataset(dataset+'_panoptic', split='train', mode='train')
@@ -241,11 +277,9 @@ def get_dataloader(net, train_dataset, val_dataset, train_transform, val_transfo
     train_loader = mx.gluon.data.DataLoader(
         train_dataset.transform(train_transform(net, ashape=net.ashape, multi_stage=multi_stage)),
         batch_size, True, batchify_fn=train_bfn, last_batch='rollover', num_workers=num_workers)
-    # val_bfn = batchify.Tuple(*[batchify.Append() for _ in range(2)])
-    # val_loader = mx.gluon.data.DataLoader(
-    #     val_dataset.transform(val_transform(net.short, net.max_size)),
-    #     batch_size, False, batchify_fn=val_bfn, last_batch='keep', num_workers=num_workers)
-    val_loader = None
+    val_bfn = batchify.Tuple(*[batchify.Append() for _ in range(2)])
+    val_loader = mx.gluon.data.DataLoader(val_dataset, batch_size, False, batchify_fn=val_bfn,
+        last_batch='keep', num_workers=num_workers)
     return train_loader, val_loader
 
 
@@ -349,12 +383,13 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
     rcnn_cls_loss = mx.gluon.loss.SoftmaxCrossEntropyLoss()
     rcnn_box_loss = mx.gluon.loss.HuberLoss()  # == smoothl1
     rcnn_mask_loss = mx.gluon.loss.SigmoidBinaryCrossEntropyLoss(from_sigmoid=False)
-    segm_loss = SoftmaxCrossEntropyLoss()
+    rcnn_segm_loss = SoftmaxCrossEntropyLoss()
     metrics = [mx.metric.Loss('RPN_Conf'),
                mx.metric.Loss('RPN_SmoothL1'),
                mx.metric.Loss('RCNN_CrossEntropy'),
                mx.metric.Loss('RCNN_SmoothL1'),
-               mx.metric.Loss('RCNN_Mask')]
+               mx.metric.Loss('RCNN_Mask'),
+               mx.metric.Loss('RCNN_Seg')]
 
     rpn_acc_metric = RPNAccMetric()
     rpn_bbox_metric = RPNL1LossMetric()
@@ -362,9 +397,11 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
     rcnn_bbox_metric = RCNNL1LossMetric()
     rcnn_mask_metric = MaskAccMetric()
     rcnn_fgmask_metric = MaskFGAccMetric()
+    rcnn_seg_metric = SegAccMetric()
     metrics2 = [rpn_acc_metric, rpn_bbox_metric,
                 rcnn_acc_metric, rcnn_bbox_metric,
-                rcnn_mask_metric, rcnn_fgmask_metric]
+                rcnn_mask_metric, rcnn_fgmask_metric,
+                rcnn_seg_metric]
 
     # set up logger
     logging.basicConfig()
@@ -392,15 +429,15 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
             metric.reset()
         tic = time.time()
         btic = time.time()
-        # if not args.disable_hybridization:
-        #     net.hybridize(static_alloc=args.static_alloc)
+        if not args.disable_hybridization:
+            net.hybridize(static_alloc=args.static_alloc)
         base_lr = trainer.learning_rate
         for i, batch in enumerate(train_data):
             if epoch == 0 and i <= lr_warmup:
                 # adjust based on real percentage
                 new_lr = base_lr * get_lr_at_iter(i / lr_warmup)
                 if new_lr != trainer.learning_rate:
-                    if i % args.log_interval == -1:
+                    if i % args.log_interval == 0:
                         logger.info(
                             '[Epoch 0 Iteration {}] Set learning rate to {}'.format(i, new_lr))
                     trainer.set_learning_rate(new_lr)
@@ -442,20 +479,23 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
                     mask_loss = rcnn_mask_loss(mask_pred, mask_targets, mask_masks) * \
                                 mask_targets.size / mask_targets.shape[0] / mask_masks.sum()
                     # loss of seg
-                    seg_loss = segm_loss(seg_pred, gt_segms)
+                    seg_loss = rcnn_segm_loss(seg_pred, gt_segms)
                     # overall losses
-                    losses.append(rpn_loss.sum() + rcnn_loss.sum() + mask_loss.sum() + seg_loss.sum())
+                    panoptic_loss = 0.75 * mask_loss + 1. * seg_loss
+                    losses.append(rpn_loss.sum() + rcnn_loss.sum() + panoptic_loss.sum())
                     metric_losses[0].append(rpn_loss1.sum())
                     metric_losses[1].append(rpn_loss2.sum())
                     metric_losses[2].append(rcnn_loss1.sum())
                     metric_losses[3].append(rcnn_loss2.sum())
-                    metric_losses[3].append(mask_loss.sum())
+                    metric_losses[4].append(mask_loss.sum())
+                    metric_losses[5].append(seg_loss.sum())
                     add_losses[0].append([[rpn_cls_targets, rpn_cls_targets >= 0], [rpn_score]])
                     add_losses[1].append([[rpn_box_targets, rpn_box_masks], [rpn_box]])
                     add_losses[2].append([[cls_targets], [cls_pred]])
                     add_losses[3].append([[box_targets, box_masks], [box_pred]])
                     add_losses[4].append([[mask_targets, mask_masks], [mask_pred]])
                     add_losses[5].append([[mask_targets, mask_masks], [mask_pred]])
+                    add_losses[6].append([[gt_segms], [seg_pred]])
                 autograd.backward(losses)
                 for metric, record in zip(metrics, metric_losses):
                     metric.update(0, record)
@@ -473,7 +513,7 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
         msg = ','.join(['{}={:.3f}'.format(*metric.get()) for metric in metrics])
         logger.info('[Epoch {}] Training cost: {:.3f}, {}'.format(
             epoch, (time.time() - tic), msg))
-        if not (epoch + 0) % args.val_interval:
+        if not (epoch + 1) % args.val_interval:
             # consider reduce the frequency of validation to save time
             map_name, mean_ap = validate(net, val_data, ctx, eval_metric, args)
             val_msg = '\n'.join(['{}={}'.format(k, v) for k, v in zip(map_name, mean_ap)])
@@ -514,7 +554,7 @@ if __name__ == '__main__':
     train_dataset, val_dataset, eval_metric = get_dataset(args.dataset)
     train_data, val_data = get_dataloader(
         net, train_dataset, val_dataset, PanopticFPNDefaultTrainTransform,
-        PanoptocFPNDefaultValTransform, args.batch_size, args.num_workers, args.use_fpn)
+        None, args.batch_size, args.num_workers, args.use_fpn)
 
     # training
     train(net, train_data, val_data, eval_metric, ctx, args)

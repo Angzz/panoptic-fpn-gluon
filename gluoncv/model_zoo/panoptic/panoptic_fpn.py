@@ -9,61 +9,76 @@ from mxnet import autograd
 from mxnet.gluon import nn
 
 from ..mask_rcnn.mask_rcnn import MaskRCNN
-from ...nn.feature import PanopticFPNFeatureExpander
+from ...nn.feature import FPNFeatureExpander
 
 __all__ = ['PanopticFPN', 'get_panoptic_fpn',
            'panoptic_fpn_resnet50_v1b_citys',
            'panoptic_fpn_resnet101_v1d_citys']
 
 
-class Seg(nn.HybridBlock):
-    def __init__(self, classes, seg_channels, **kwargs):
-        super(Seg, self).__init__(**kwargs)
-        init = mx.init.Xavier(rnd_type='gaussian', factor_type='out', magnitude=2)
+class SegHead(nn.HybridBlock):
+    def __init__(self, fpn_features, seg_classes, seg_channels, **kwargs):
+        super(SegHead, self).__init__(**kwargs)
+        init = mx.init.Xavier(rnd_type='gaussian', factor_type='out', magnitude=2.)
         with self.name_scope():
-            self.seg_head = nn.Conv2D(classes, 1, 1, 0, weight_initializer=init)
-            self.seg_deconv = nn.Conv2DTranspose(seg_channels, 4, 4, 0)
+            self._features = fpn_features
+            self.seghead = nn.HybridSequential()
+            for i in range(4):
+                block = nn.HybridSequential()
+                if i == 3:
+                    block.add(nn.Conv2D(
+                        seg_channels, 3, 1, 1, weight_initializer=init, activation='relu'))
+                else:
+                    for j in range(3 - i):
+                        block.add(nn.Conv2D(
+                            seg_channels, 3, 1, 1, weight_initializer=init, activation='relu'))
+                        block.add(nn.Conv2DTranspose(
+                            seg_channels, 2, 2, 0, weight_initializer=init))
+                self.seghead.add(block)
+            self.seg_predictor = nn.Conv2D(seg_classes, 1, 1, 0, weight_initializer=init)
 
-    def hybrid_forward(self, F, x, im=None):
-        # x: [B, C, H, W]
-        x = self.seg_head(x)
-        if not autograd.is_training():
-            x = self.seg_deconv(x)
-            x = F.slice_like(x, im, axes=(2, 3))
-        x = F.softmax(x, axis=1)
-        return x
+    def hybrid_forward(self, F, x):
+        feats = self._features(x)
+        feats = feats[::-1][1:]
+        seg_feats = []
+        for i, f in enumerate(feats):
+            f = self.seghead[i](f)
+            f = F.slice_like(f, F.zeros_like(feats[-1]), axes=(2, 3))
+            seg_feats.append(f)
+        seg_feats = F.add_n(*seg_feats)
+        if autograd.is_training():
+            out = self.seg_predictor(seg_feats)
+            out = F.softmax(out, axis=1)
+        else:
+            out = seg_feats
+        return out
 
 
 class PanopticFPN(MaskRCNN):
-    def __init__(self, features, seg_features, mask_classes, seg_classes,
+    def __init__(self, features, mask_classes, seg_classes,
                  mask_channels=256, seg_channels=128, rcnn_max_dets=1000,
                  deep_fcn=False, top_features=None, **kwargs):
-
         # Panoptic FPN do not use top features
         super(PanopticFPN, self).__init__(features, top_features, mask_classes,
                                           mask_channels=mask_channels, deep_fcn=deep_fcn,
                                           rcnn_max_dets=rcnn_max_dets, **kwargs)
         self.num_seg_class = len(seg_classes)
         with self.name_scope():
-            self.seg_features = seg_features
-            self.seg = Seg(self.num_seg_class, seg_channels)
+            self.seg_head = SegHead(features, self.num_seg_class, seg_channels)
 
     def hybrid_forward(self, F, x, gtbox=None):
         # Stuff predict
-        seg_feats = self.seg_features(x)
-        seg_feats = F.add_n(*seg_feats)
-
         if autograd.is_training():
             cls_pred, box_pred, mask_pred, rpn_box, samples, matches, \
                 raw_rpn_score, raw_rpn_box, anchors = \
                 super(PanopticFPN, self).hybrid_forward(F, x, gtbox)
-            seg_pred = self.seg(seg_feats)
+            seg_pred = self.seg_head(x)
             return cls_pred, box_pred, mask_pred, seg_pred, rpn_box, samples, \
                    matches, raw_rpn_score, raw_rpn_box, anchors
         else:
             cls_ids, cls_scores, boxes, masks = \
                 super(PanopticFPN, self).hybrid_forward(F, x)
-            segms = self.seg(seg_feats, x)
+            segms = self.seg_head(x)
             return cls_ids, cls_scores, boxes, masks, segms
 
 
@@ -82,21 +97,13 @@ def panoptic_fpn_resnet50_v1b_citys(pretrained=False, pretrained_base=True, **kw
     from ...data import CitysPanoptic
     mask_classes = CitysPanoptic.MASK_CLASS
     seg_classes = CitysPanoptic.SEG_CLASS
+    seg_classes.extend(mask_classes)
     pretrained_base = False if pretrained else pretrained_base
     base_network = resnet50_v1b(pretrained=pretrained_base, dilated=False, use_global_stats=True)
-    panoptic_features = PanopticFPNFeatureExpander(network=base_network, pretrained=pretrained_base,
-                                          outputs=['layers1_relu8_fwd',
-                                                   'layers2_relu11_fwd',
-                                                   'layers3_relu17_fwd',
-                                                   'layers4_relu8_fwd'])
-    # split features
-    _input = mx.sym.var('data')
-    out = panoptic_features(_input)
-    mask_out, seg_out = out[:5], out[5:]
-    mask_features = mx.gluon.SymbolBlock(
-            mask_out, _input, params=panoptic_features.collect_params())
-    seg_features = mx.gluon.SymbolBlock(
-            seg_out, _input, params=panoptic_features.collect_params())
+    features = FPNFeatureExpander(
+        network=base_network, use_p6=True, no_bias=False, pretrained=pretrained_base,
+        outputs=['layers1_relu8_fwd', 'layers2_relu11_fwd', 'layers3_relu17_fwd',
+                 'layers4_relu8_fwd'], num_filters=[256, 256, 256, 256])
 
     top_features = None
     box_features = nn.HybridSequential()
@@ -108,8 +115,8 @@ def panoptic_fpn_resnet50_v1b_citys(pretrained=False, pretrained_base=True, **kw
                                '.*down(2|3|4)_conv', '.*layers(2|3|4)_conv'])
 
     return get_panoptic_fpn(
-        name='resnet50_v1b', dataset='citys', pretrained=pretrained, features=mask_features,
-        seg_features=seg_features, top_features=top_features, mask_classes=mask_classes,
+        name='resnet50_v1b', dataset='citys', pretrained=pretrained, features=features,
+        top_features=top_features, mask_classes=mask_classes,
         seg_classes=seg_classes, box_features=box_features, mask_channels=256,
         seg_channels=128, rcnn_max_dets=1000, min_stage=2, max_stage=6,
         train_patterns=train_patterns, nms_thresh=0.5, nms_topk=-1, post_nms=-1,

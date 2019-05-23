@@ -1,4 +1,6 @@
 """Train Mask RCNN end to end."""
+import sys
+sys.path.append('/data/tmp/gluon-cv/')
 import argparse
 import os
 
@@ -432,6 +434,7 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
                     rcnn_loss = rcnn_loss1 + rcnn_loss2
                     # generate targets for mask
                     mask_targets, mask_masks = net.mask_target(roi, gt_mask, matches, cls_targets)
+                    from IPython import embed; embed()
                     # loss of mask
                     mask_loss = rcnn_mask_loss(mask_pred, mask_targets, mask_masks) * \
                                 mask_targets.size / mask_targets.shape[0] / mask_masks.sum()

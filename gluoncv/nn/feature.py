@@ -11,7 +11,7 @@ from mxnet.base import string_types
 from mxnet.gluon import HybridBlock, SymbolBlock
 from mxnet.symbol import Symbol
 from mxnet.symbol.contrib import SyncBatchNorm
-from .gn import GroupNorm
+
 
 def _parse_network(network, outputs, inputs, pretrained, ctx, **kwargs):
     """Parse network with specified outputs and other arguments.
@@ -277,70 +277,3 @@ class FPNFeatureExpander(SymbolBlock):
             outputs = tmp_outputs[::-1]  # [P2, P3, P4, P5]
 
         super(FPNFeatureExpander, self).__init__(outputs, inputs, params)
-
-
-class PanopticFPNFeatureExpander(SymbolBlock):
-    """Panoptic FPN FeatureExtractor"""
-    def __init__(self, network, outputs, no_bias=True, pretrained=False,
-                 norm_layer=None, norm_kwargs=None, ctx=mx.cpu(), inputs=('data',)):
-
-        if norm_kwargs is None:
-            norm_kwargs = {}
-        inputs, outputs, params = _parse_network(network, outputs, inputs, pretrained, ctx)
-        weight_init = mx.init.Xavier(rnd_type='guassian', factor_type='out', magnitude=2.)
-        # group_norm = GroupNorm(ngroups=32)
-        fpn_fms = []
-        fpn_fms_seg = []
-        last_fm = None
-        for i, layer in enumerate(outputs[::-1]):
-            fm_1x1 = mx.sym.Convolution(layer, kernel=(1, 1), stride=(1, 1), pad=(0, 0),
-                     num_filter=256, no_bias=True, name="P{}_1x1conv".format(5-i),
-                     attr={'__init__': weight_init})
-            if last_fm is not None:
-                last_resize = mx.sym.Deconvolution(last_fm, kernel=(2, 2), stride=(2, 2),
-                                pad=(0, 0), num_filter=256, no_bias=True,
-                                name="P{}_Up".format(5-i), attr={'__init__': weight_init})
-                last_resize = mx.sym.slice_like(last_resize, fm_1x1, axes=(2, 3)) # alignment
-                fm_1x1 = fm_1x1 + last_resize
-            last_fm = fm_1x1
-            fm_3x3 = mx.sym.Convolution(fm_1x1, kernel=(3, 3), stride=(1, 1), pad=(1, 1),
-                     num_filter=256, no_bias=True, name="P{}".format(5-i),
-                     attr={'__init__': weight_init})
-            fpn_fms.append(fm_3x3)
-            # Seg fm
-            if i == 3:
-                fm_3x3 = mx.sym.Convolution(fm_3x3, kernel=(3, 3), stride=(1, 1), pad=(1, 1),
-                         num_filter=128, no_bias=True, name="P{}_3x3conv_seg".format(5-i),
-                         attr={'__init__': weight_init})
-                # fm_3x3 = group_norm(fm_3x3)
-                fm_3x3 = mx.sym.Activation(fm_3x3, act_type="relu",
-                                           name="P{}_seg".format(5-i))
-            else:
-                for j in range(3-i):
-                    fm_3x3 = mx.sym.Convolution(fm_3x3, kernel=(3, 3), stride=(1, 1),
-                             pad=(1, 1), num_filter=128, no_bias=True,
-                             name="P{}_3x3conv_seg{}".format(5-i, j),
-                             attr={'__init__': weight_init})
-                    # fm_3x3 = group_norm(fm_3x3)
-                    fm_3x3 = mx.sym.Activation(fm_3x3, act_type="relu",
-                                           name="P{}_relu_seg{}".format(5-i, j))
-                    if i != (len(outputs)-1):
-                        fm_3x3 = mx.sym.Deconvolution(fm_3x3, kernel=(2, 2), stride=(2, 2),
-                                    pad=(0, 0), num_filter=128, no_bias=True,
-                                    name="P{}_Up_seg{}".format(5-i, j),
-                                    attr={'__init__': weight_init})
-            fpn_fms_seg.append(fm_3x3)
-
-        # crop fms seg
-        last_fm = fpn_fms[-1]
-        for i in range(len(fpn_fms_seg)):
-            fpn_fms_seg[i] = mx.sym.slice_like(fpn_fms_seg[i], last_fm, axes=(2, 3))
-
-        fm_P6 = mx.sym.Convolution(fpn_fms[0], kernel=(3, 3), stride=(2, 2), pad=(1, 1),
-                 num_filter=256, no_bias=True, name="P6", attr={'__init__': weight_init})
-        fpn_fms.insert(0, fm_P6)
-        fpn_fms = fpn_fms[::-1]
-        fpn_fms.extend(fpn_fms_seg)
-        outputs = fpn_fms
-
-        super(PanopticFPNFeatureExpander, self).__init__(outputs, inputs, params)
