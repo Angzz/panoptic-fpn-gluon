@@ -1,5 +1,0 @@
-include README.md
-include LICENSE
-graft gluoncv
-prune docs tests scripts
-global-exclude *.py[co]
