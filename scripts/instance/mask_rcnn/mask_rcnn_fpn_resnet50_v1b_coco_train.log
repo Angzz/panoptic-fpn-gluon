@@ -1,2 +1,0 @@
-Namespace(batch_size=1, dataset='coco', disable_hybridization=False, epochs=26, gpus='0', log_interval=100, lr=0.00125, lr_decay=0.1, lr_decay_epoch='17,23', lr_warmup=-1, momentum=0.9, network='resnet50_v1b', num_workers=4, resume='', save_interval=1, save_prefix='mask_rcnn_fpn_resnet50_v1b_coco', seed=233, start_epoch=0, static_alloc=False, use_fpn=True, val_interval=1, verbose=False, wd=0.0001)
-Start training from [Epoch 0]
