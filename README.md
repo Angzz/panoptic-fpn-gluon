@@ -50,4 +50,4 @@ This is an unofficial implementation of [Panoptic-FPN](https://arxiv.org/abs/190
   ```
 
 ## Reference 
-* **Panoptic FPN:** Alexander Kirillov, Ross Girshick, Kaiming He, Piotr Dollár.<br />"Panoptic Feature Pyramid Networks." CVPR (2019 **oral**). [[paper](https://arxiv.org/pdf/1901.02446.pdf)] [[unofficial code](https://github.com/Angzz/panoptic-fpn-gluon)]
+* **Panoptic FPN:** Alexander Kirillov, Ross Girshick, Kaiming He, Piotr Dollár.<br />"Panoptic Feature Pyramid Networks." CVPR (2019 **oral**). [[paper](https://arxiv.org/pdf/1901.02446.pdf)] 
