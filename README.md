@@ -29,7 +29,7 @@ You can also download from [Cityscapes](https://www.cityscapes-dataset.com/) and
 ```Shell
 python3 createPanopticImgs.py --dataset-folder ~/.mxnet/datasets/citys/gtFine/ --output-folder ~/.mxnet/datasets/citys/gtFine/
 ```
-the correct data structure is shown below:
+Note that the correct data structure is shown below:
 ```Shell
 $ ls ~/.mxnet/datasets/citys
 ├── gtFine
@@ -67,12 +67,15 @@ $ ls ~/.mxnet/datasets/citys
 ```Shell
 python3 train_panoptic_fpn.py --network resnet50_v1b --gpus 0,1,2,3,4,5,6,7 --num-workers 32 --static-alloc --batch-size 8 --log-interval 10 --save-interval 20 --epochs 700 --lr_decay_epoch 430,590 --lr-warmup 4000
 ```
-Note that we follow the training settings described in original [paper]((https://arxiv.org/pdf/1901.02446.pdf)). 
+Note that we follow the training settings described in original [paper](https://arxiv.org/pdf/1901.02446.pdf).
 
 2. Clone the validation scripts [here](https://github.com/Angzz/panoptic-fpn-gluon/blob/master/scripts/panoptic/eval_panoptic_fpn.py), then validate `panoptic_fpn_resnet50_v1b_citys` with: 
 ```Shell
 python3 eval_panoptic_fpn.py --network resnet50_v1b --gpus 0,1,2,3,4,5,6,7 --pretrained ./XXX.params
 ```
+### COCO
+* TODO
+
 
 ## Reference 
 * **Panoptic FPN:** Alexander Kirillov, Ross Girshick, Kaiming He, Piotr Dollár.<br />"Panoptic Feature Pyramid Networks." CVPR (2019 **oral**). [[paper](https://arxiv.org/pdf/1901.02446.pdf)] 
