@@ -7,28 +7,42 @@ This is an unofficial implementation of [Panoptic-FPN](https://arxiv.org/abs/190
 
 ## Installation 
 1. Install cuda `10.0` and mxnet `1.4.0`.
-  ```Shell
-  sudo pip3 install mxnet-cu100==1.4.0.post0
-  ```
+```Shell
+sudo pip3 install mxnet-cu100==1.4.0.post0
+```
 2. Clone the code, and install gluoncv with ``setup.py``.
-  ```Shell
-  cd fcos-gluon-cv
-  sudo python3 setup.py build
-  sudo python3 setup.py install
-  ```
+```Shell
+cd fcos-gluon-cv
+sudo python3 setup.py build
+sudo python3 setup.py install
+```
 
 ## Preparation
 ### Cityscapes
 1. Download `Cityscapes` datasets follow the official [tutorials](https://gluon-cv.mxnet.io/build/examples_datasets/cityscapes.html#sphx-glr-build-examples-datasets-cityscapes-py) and create a soft link.
-  ```Shell
-  ln -s $DOWNLOAD_PATH ~/.mxnet/datasets/citys
-  ```
-   You can also download from [Cityscapes](https://www.cityscapes-dataset.com/) and execute the command above.
+```Shell
+ln -s $DOWNLOAD_PATH ~/.mxnet/datasets/citys
+```
+You can also download from [Cityscapes](https://www.cityscapes-dataset.com/) and execute the command above.
 
-2. Create Panoptic images for training and Inference, the code can be found [here](https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/preparation/createPanopticImgs.py). Then execute the command below
-  ```Shell
-  python3 createPanopticImgs.py --dataset-folder ~/.mxnet/datasets/citys/gtFine/ --output-folder ~/.mxnet/datasets/citys/gtFine/
-  ```
+2. Create Panoptic images for training and Inference, the code can be found [here](https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/preparation/createPanopticImgs.py). Then execute the command below:
+```Shell
+python3 createPanopticImgs.py --dataset-folder ~/.mxnet/datasets/citys/gtFine/ --output-folder ~/.mxnet/datasets/citys/gtFine/
+```
+the correct data structure is shown below:
+```Shell
+$ ls ~/.mxnet/datasets/citys
+├── dir1
+│   ├── file11.ext
+│   └── file12.ext
+├── dir2
+│   ├── file21.ext
+│   ├── file22.ext
+│   └── file23.ext
+├── dir3
+├── file_in_root.ext
+└── README.md
+```
    
 3. More preparations can also refer to [GluonCV](https://gluon-cv.mxnet.io/index.html).
 
