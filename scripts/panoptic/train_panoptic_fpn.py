@@ -8,6 +8,7 @@ import os
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
 import logging
 import time
+import cv2
 import numpy as np
 import mxnet as mx
 from mxnet import gluon
@@ -19,8 +20,7 @@ from gluoncv.model_zoo import get_model
 from gluoncv.data import batchify
 from gluoncv.data import get_segmentation_dataset
 from gluoncv.data.transforms.presets.panoptic import PanopticFPNDefaultTrainTransform
-from gluoncv.utils.metrics.coco_instance import COCOInstanceMetric
-# from gluoncv.loss import SoftmaxCrossEntropyLoss
+from gluoncv.utils.metrics.citys_panoptic import CitysPanopticMetric
 
 
 def parse_args():
@@ -262,7 +262,7 @@ def get_dataset(dataset):
     if dataset.lower() == 'citys':
         train_dataset = get_segmentation_dataset(dataset+'_panoptic', split='train', mode='train')
         val_dataset = get_segmentation_dataset(dataset+'_panoptic', split='val', mode='val')
-        val_metric = None
+        val_metric = CitysPanopticMetric(val_dataset, "cityscapes_panoptic_val")
     elif dataset.lower() == 'coco':
         pass
     else:
@@ -312,32 +312,34 @@ def validate(net, val_data, ctx, eval_metric, args):
     """Test on validation dataset."""
     clipper = gcv.nn.bbox.BBoxClipToImage()
     eval_metric.reset()
-    if not args.disable_hybridization:
-        net.hybridize(static_alloc=args.static_alloc)
+    net.hybridize(static_alloc=True)
     for ib, batch in enumerate(val_data):
         batch = split_and_load(batch, ctx_list=ctx)
         det_bboxes = []
         det_ids = []
         det_scores = []
         det_masks = []
+        det_segms = []
         det_infos = []
         for x, im_info in zip(*batch):
             # get prediction results
-            ids, scores, bboxes, masks = net(x)
+            ids, scores, bboxes, masks, segms = net(x)
             det_bboxes.append(clipper(bboxes, x))
             det_ids.append(ids)
             det_scores.append(scores)
             det_masks.append(masks)
+            det_segms.append(segms)
             det_infos.append(im_info)
         # update metric
-        for det_bbox, det_id, det_score, det_mask, det_info in zip(det_bboxes, det_ids, det_scores,
-                                                                   det_masks, det_infos):
+        for det_bbox, det_id, det_score, det_mask, det_segm, det_info in zip(
+                det_bboxes, det_ids, det_scores, det_masks, det_segms, det_infos):
             for i in range(det_info.shape[0]):
                 # numpy everything
                 det_bbox = det_bbox[i].asnumpy()
                 det_id = det_id[i].asnumpy()
                 det_score = det_score[i].asnumpy()
                 det_mask = det_mask[i].asnumpy()
+                det_segm = det_segm[i].asnumpy()
                 det_info = det_info[i].asnumpy()
                 # filter by conf threshold
                 im_height, im_width, im_scale = det_info
@@ -351,14 +353,19 @@ def validate(net, val_data, ctx, eval_metric, args):
                     round(im_width / im_scale))
                 full_masks = []
                 for bbox, mask in zip(det_bbox, det_mask):
-                    full_masks.append(gdata.transforms.mask.fill(mask, bbox, (im_width, im_height)))
+                    full_masks.append(gdata.transforms.mask.fill(
+                        mask, bbox, (im_width, im_height)))
                 full_masks = np.array(full_masks)
-                eval_metric.update(det_bbox, det_id, det_score, full_masks)
+                # fill full segm
+                full_segms = cv2.resize(det_segm.transpose(1, 2, 0), (im_width, im_height),
+                        interpolation=cv2.INTER_LINEAR)
+                full_segms = np.argmax(full_segms, axis=2)
+                eval_metric.update(det_bbox, det_id, det_score, full_masks, full_segms)
     return eval_metric.get()
 
 
 def get_lr_at_iter(alpha):
-    return 1. / 3. * (1 - alpha) + alpha
+    return 1. / 10. * (1 - alpha) + alpha
 
 
 def train(net, train_data, val_data, eval_metric, ctx, args):
