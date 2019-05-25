@@ -32,18 +32,21 @@ python3 createPanopticImgs.py --dataset-folder ~/.mxnet/datasets/citys/gtFine/ -
 the correct data structure is shown below:
 ```Shell
 $ ls ~/.mxnet/datasets/citys
-├── dir1
-│   ├── file11.ext
-│   └── file12.ext
-├── dir2
-│   ├── file21.ext
-│   ├── file22.ext
-│   └── file23.ext
-├── dir3
-├── file_in_root.ext
-└── README.md
+├── gtFine
+│   ├── train/
+│   ├── val/
+│   ├── test/
+│   ├── cityscapes_panoptic_train/
+│   ├── cityscapes_panoptic_val/
+│   ├── cityscapes_panoptic_test/
+│   ├── cityscapes_panoptic_train.json
+│   └── cityscapes_panoptic_val.json
+├── leftImg8bit
+│   ├── train/
+│   ├── val/
+│   └── test/
 ```
-   
+
 3. More preparations can also refer to [GluonCV](https://gluon-cv.mxnet.io/index.html).
 
 4. All experiments are performed on `8 * 2080ti` GPU with `Python3.5`, `cuda10.0` and `cudnn7.5.0`.
