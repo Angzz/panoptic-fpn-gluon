@@ -70,7 +70,7 @@ class CitysPanopticMetric(mx.metric.EvalMetric):
         else:
             f.close()
 
-        self._save_imgpath = osp.abspath(osp.expanduser(save_prefix) + t + '.json')
+        self._save_imgpath = osp.abspath(osp.expanduser(save_prefix) + t)
         if not os.path.exists(self._save_imgpath):
             os.mkdir(self._save_imgpath)
         self._eval_result_file = osp.abspath(osp.expanduser(save_prefix) + t + '_result.json')
@@ -126,14 +126,14 @@ class CitysPanopticMetric(mx.metric.EvalMetric):
         self._update()
         print("Starting evaluation...")
         from .evalPanopticSemanticLabeling import evaluatePanoptic
-        gt_path = osp.join(self.root, 'gtFine')
+        gt_path = osp.join(self._root, 'gtFine')
         gt_folder = osp.join(gt_path, 'cityscapes_panoptic_val')
         gt_json = osp.join(gt_path, 'cityscapes_panoptic_val.json')
         pred_folder = self._save_imgpath
         pred_json = self._filename
         result_file = self._eval_result_file
         results = evaluatePanoptic(gt_json, gt_folder, pred_json, pred_folder, result_file)
-        return result
+        return results
 
     def panoptic_merge(self, insts, segms, dets):
         '''
