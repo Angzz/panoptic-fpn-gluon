@@ -522,10 +522,7 @@ def train(net, train_data, val_data, eval_metric, ctx, args):
             epoch, (time.time() - tic), msg))
         if not (epoch + 1) % args.val_interval:
             # consider reduce the frequency of validation to save time
-            map_name, mean_ap = validate(net, val_data, ctx, eval_metric, args)
-            val_msg = '\n'.join(['{}={}'.format(k, v) for k, v in zip(map_name, mean_ap)])
-            logger.info('[Epoch {}] Validation: \n{}'.format(epoch, val_msg))
-            current_map = float(mean_ap[-1])
+            result = validate(net, val_data, ctx, eval_metric, args)
         else:
             current_map = 0.
         save_params(net, logger, best_map, current_map, epoch, args.save_interval, args.save_prefix)

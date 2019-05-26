@@ -11,7 +11,6 @@ import warnings
 import cv2
 import numpy as np
 import mxnet as mx
-from ...data.mscoco.utils import try_import_pycocotools
 
 
 class CitysPanopticMetric(mx.metric.EvalMetric):
@@ -33,16 +32,18 @@ class CitysPanopticMetric(mx.metric.EvalMetric):
         be discarded before saving to results.
 
     """
-    def __init__(self, dataset, save_prefix, max_dets=100, use_time=True, cleanup=False,
-            score_thresh=1e-3, panoptic_score_thresh=0.5):
+    def __init__(self, dataset, save_prefix, max_dets=100, use_time=True,
+                 cleanup=False, score_thresh=1e-3, panoptic_score_thresh=0.5,
+                 root=osp.expanduser('~/.mxnet/datasets/citys')):
         super(CitysPanopticMetric, self).__init__('CityesPanoptic')
         self.dataset = dataset
         self._img_ids = dataset.images
         self._max_dets = max_dets
         self._current_id = 0
         self._cleanup = cleanup
-        self._results = {'annotations': []}
-        self._panoptic_images = {}
+        self._root = root
+        self._results = {'annotations': []} # for generate predict json
+        self._panoptic_images = {} # for generate predict images
         self._inst_mapping = {0: 24, 1: 25, 2: 26, 3: 27, \
                               4: 28, 5: 31, 6: 32, 7: 33}
         self._stuff_mapping = {0: 7, 1: 8, 2: 11, 3: 12, 4: 13,
@@ -54,7 +55,7 @@ class CitysPanopticMetric(mx.metric.EvalMetric):
         self._score_thresh = score_thresh
         self._panoptic_score_thresh = panoptic_score_thresh
         self._min_thing_area = 100
-        self._min_stuff_area = 2000
+        self._min_stuff_area = 100
 
         if use_time:
             import datetime
@@ -69,9 +70,10 @@ class CitysPanopticMetric(mx.metric.EvalMetric):
         else:
             f.close()
 
-        self._save_imgpath = osp.abspath('predictions')
+        self._save_imgpath = osp.abspath(osp.expanduser(save_prefix) + t + '.json')
         if not os.path.exists(self._save_imgpath):
             os.mkdir(self._save_imgpath)
+        self._eval_result_file = osp.abspath(osp.expanduser(save_prefix) + t + '_result.json')
 
     def __del__(self):
         if self._cleanup:
@@ -82,7 +84,8 @@ class CitysPanopticMetric(mx.metric.EvalMetric):
 
     def reset(self):
         self._current_id = 0
-        self._results = []
+        self._results = {'annotations': []}
+        self._panoptic_images = {}
 
     def _dump_json(self):
         """Write coco json file"""
@@ -110,46 +113,37 @@ class CitysPanopticMetric(mx.metric.EvalMetric):
 
 
     def _update(self):
-        """Use official eval code to get results."""
+        """Save necessary results for evaluation."""
         print("Saving prediction json files...")
         self._dump_json()
         print("Saving prediction json files done...")
         print("Saving prediction images...")
         self._dump_image()
         print("Saving prediction images done...")
-        print("Starting evaluation...")
-        from .evalPanopticSemanticLabeling import evaluatePanoptic
-        root = osp.expanduser('~/.mxnet/datasets/citys')
-        gt_path = osp.join(root, 'gtFine')
-        gt_folder = osp.join(gt_path, 'cityscapes_panoptic_val')
-        gt_json = osp.join(gt_path, 'cityscapes_panoptic_val.json')
-        pred_folder = self._save_imgpath
-        pred_json = self._filename
-        result_file = 'result.json'
-        evaluatePanoptic(gt_json, gt_folder, pred_json, pred_folder, result_file)
-
-
-        from IPython import embed; embed()
-        return names, values
 
     def get(self):
         """Get evaluation metrics. """
         self._update()
-        # self._dump_json()
-        # bbox_names, bbox_values = self._update('bbox')
-        # mask_names, mask_values = self._update('segm')
-        # names = bbox_names + mask_names
-        # values = bbox_values + mask_values
-        return names, values
+        print("Starting evaluation...")
+        from .evalPanopticSemanticLabeling import evaluatePanoptic
+        gt_path = osp.join(self.root, 'gtFine')
+        gt_folder = osp.join(gt_path, 'cityscapes_panoptic_val')
+        gt_json = osp.join(gt_path, 'cityscapes_panoptic_val.json')
+        pred_folder = self._save_imgpath
+        pred_json = self._filename
+        result_file = self._eval_result_file
+        results = evaluatePanoptic(gt_json, gt_folder, pred_json, pred_folder, result_file)
+        return result
 
     def panoptic_merge(self, insts, segms, dets):
         '''
-        insts : [100, 28, 28]
-        segms : [1024, 2048]
-        dets : [100, 6]
+        insts : [N, 28, 28]
+        segms : [H, W]
+        dets : [N, 6]
 
         return : category_id, id
         Note : for stuff : category_id == id
+               for thing : category_id == id // 1000
         '''
         panoptic = np.zeros(segms.shape + (3,), dtype=np.uint16)
         unique_cls = np.unique(segms)
@@ -193,11 +187,6 @@ class CitysPanopticMetric(mx.metric.EvalMetric):
         # Convert 255 to Unlabeled
         panoptic[panoptic == 255] = 0
         return panoptic
-
-
-    def panoptic_merge_coco(self):
-        pass
-
 
     # pylint: disable=arguments-differ, unused-argument
     def update(self, pred_bboxes, pred_labels, pred_scores, pred_masks, pred_segms):
@@ -251,16 +240,18 @@ class CitysPanopticMetric(mx.metric.EvalMetric):
         segments_info = []
         unique_cls = np.unique(panoptic[:, :, 2])
         for _cls in unique_cls:
-            annots = {}
-            annots['category_id'] = int(_cls // 1000 if _cls > 24 else _cls)
-            annots['id'] = int(_cls)
-            segments_info.append(annots)
+            if _cls > 0: # 0 is unlabeled
+                annots = {}
+                annots['category_id'] = int(_cls // 1000 if _cls > 24 else _cls)
+                annots['id'] = int(_cls)
+                segments_info.append(annots)
 
         # Convert to coco panoptic format
         panoptic[:, :, 1] = panoptic[:, :, 1] // 256
         panoptic[:, :, 2] = panoptic[:, :, 2] % 256
         panoptic = panoptic.astype('uint8')
+        # Save
+        self._panoptic_images[img_name] = panoptic
         self._results['annotations'].append({'file_name': img_name,
                                              'image_id': img_id,
                                              'segments_info': segments_info})
-        self._panoptic_images[img_name] = panoptic
