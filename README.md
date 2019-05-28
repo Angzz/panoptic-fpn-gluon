@@ -3,7 +3,14 @@
 This is an unofficial implementation of [Panoptic-FPN](https://arxiv.org/abs/1901.02446) in a [gluon-cv](http://gluon-cv.mxnet.io) style, we implemented this framework in a fully [Gluon](https://mxnet.incubator.apache.org/versions/master/gluon/index.html) API, please stay tuned! 
 
 ## Main Results
-* TODO
+### Cityscapes
+#### panoptic_fpn_resnet50_v1b_citys
+| - | PQ | SQ | RQ | N | 
+| :----------: | :----------: | :----------: | :----------: | :----------: | 
+| All | 55.4 | 77.9 | 69.3 | 19 | 
+| Things | 52.4 | 78.1 | 66.6 | 8 | 
+| Stuff | 57.6 | 77.7 | 71.2 | 11 | 
+
 
 ## Installation 
 1. Install cuda `10.0` and mxnet `1.4.0`.
