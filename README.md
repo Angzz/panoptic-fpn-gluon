@@ -5,6 +5,7 @@ This is an unofficial implementation of [Panoptic-FPN](https://arxiv.org/abs/190
 ## Main Results
 ### Cityscapes
 * panoptic_fpn_resnet50_v1b_citys
+
 | - | PQ | SQ | RQ | N | 
 | :----------: | :----------: | :----------: | :----------: | :----------: | 
 | All | 55.4 | 77.9 | 69.3 | 19 | 
