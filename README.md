@@ -73,7 +73,7 @@ $ ls ~/.mxnet/datasets/citys
 ### Cityscapes
 1. Clone the training scripts [here](https://github.com/Angzz/panoptic-fpn-gluon/blob/master/scripts/panoptic/train_panoptic_fpn.py), then train `panoptic_fpn_resnet50_v1b_citys` with:
 ```Shell
-python3 train_panoptic_fpn.py --network resnet50_v1b --gpus 0,1,2,3,4,5,6,7 --num-workers 32 --batch-size 8 --log-interval 10 --save-interval 20 --epochs 700 --lr_decay_epoch 430,590 --lr-warmup 4000
+python3 train_panoptic_fpn.py --network resnet50_v1b --use-fpn --gpus 0,1,2,3,4,5,6,7 --num-workers 32 --log-interval 10 --save-interval 20 --epochs 700 --lr-decay-epoch 430,590 --lr-warmup 1600
 ```
 Note that we follow the training settings described in original [paper](https://arxiv.org/pdf/1901.02446.pdf).
 
