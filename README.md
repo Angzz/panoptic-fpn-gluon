@@ -20,7 +20,7 @@ sudo pip3 install mxnet-cu100==1.4.0.post0
 ```
 2. Clone the code, and install gluoncv with ``setup.py``.
 ```Shell
-cd fcos-gluon-cv
+cd panoptic-fpn-gluon
 sudo python3 setup.py build
 sudo python3 setup.py install
 ```
