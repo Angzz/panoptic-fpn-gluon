@@ -1,5 +1,3 @@
-import sys
-sys.path.append('/data/tmp/gluon-cv/')
 import os
 # disable autotune
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'

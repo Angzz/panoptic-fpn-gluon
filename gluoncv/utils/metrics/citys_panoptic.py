@@ -54,8 +54,8 @@ class CitysPanopticMetric(mx.metric.EvalMetric):
                                     16: 5, 17: 6, 18: 7}
         self._score_thresh = score_thresh
         self._panoptic_score_thresh = panoptic_score_thresh
-        self._min_thing_area = 100
-        self._min_stuff_area = 100
+        self._min_thing_area = 0
+        self._min_stuff_area = 0
 
         if use_time:
             import datetime

@@ -16,6 +16,50 @@ __all__ = ['PanopticFPN', 'get_panoptic_fpn',
            'panoptic_fpn_resnet101_v1d_citys']
 
 
+class GroupNorm(nn.HybridBlock):
+    """
+    If the batch size is small, it's better to use GroupNorm instead of BatchNorm.
+    GroupNorm achieves good results even at small batch sizes.
+    Reference:
+      https://arxiv.org/pdf/1803.08494.pdf
+    """
+    def __init__(self, num_channels, num_groups=32, eps=1e-5,
+                 multi_precision=False, prefix=None, **kwargs):
+        super(GroupNorm, self).__init__(**kwargs)
+        with self.name_scope():
+            self.weight = self.params.get('{}_weight'.format(prefix), grad_req='write',
+                                          shape=(1, num_channels, 1, 1))
+            self.bias = self.params.get('{}_bias'.format(prefix), grad_req='write',
+                                        shape=(1, num_channels, 1, 1))
+        self.C = num_channels
+        self.G = num_groups
+        self.eps = eps
+        self.multi_precision = multi_precision
+        assert self.C % self.G == 0
+
+    def hybrid_forward(self, F, x, weight, bias):
+        # (N,C,H,W) -> (N,G,H*W*C//G)
+        x_new = F.reshape(x, (0, self.G, -1))
+        if self.multi_precision:
+            # (N,G,H*W*C//G) -> (N,G,1)
+            mean = F.mean(F.cast(x_new, "float32"), axis=-1, keepdims=True)
+            mean = F.cast(mean, "float16")
+        else:
+            mean = F.mean(x_new, axis=-1, keepdims=True)
+        # (N,G,H*W*C//G)
+        centered_x_new = F.broadcast_minus(x_new, mean)
+        if self.multi_precision:
+            # (N,G,H*W*C//G) -> (N,G,1)
+            var = F.mean(F.cast(F.square(centered_x_new),"float32"), axis=-1, keepdims=True)
+            var = F.cast(var, "float16")
+        else:
+            var = F.mean(F.square(centered_x_new), axis=-1, keepdims=True)
+        # (N,G,H*W*C//G) -> (N,C,H,W)
+        x_new = F.broadcast_div(centered_x_new, F.sqrt(var + self.eps)).reshape_like(x)
+        x_new = F.broadcast_add(F.broadcast_mul(x_new, weight),bias)
+        return x_new
+
+
 class SegHead(nn.HybridBlock):
     def __init__(self, fpn_features, seg_classes, seg_channels, **kwargs):
         super(SegHead, self).__init__(**kwargs)
@@ -27,11 +71,15 @@ class SegHead(nn.HybridBlock):
                 block = nn.HybridSequential()
                 if i == 3:
                     block.add(nn.Conv2D(
-                        seg_channels, 3, 1, 1, weight_initializer=init, activation='relu'))
+                        seg_channels, 3, 1, 1, weight_initializer=init))
+                    block.add(GroupNorm(num_channels=seg_channels, prefix="gnseg{}".format(i)))
+                    block.add(nn.Activation('relu'))
                 else:
                     for j in range(3 - i):
                         block.add(nn.Conv2D(
                             seg_channels, 3, 1, 1, weight_initializer=init, activation='relu'))
+                        block.add(nn.Activation('relu'))
+                        block.add(GroupNorm(num_channels=seg_channels, prefix="gnseg{}".format(i)))
                         block.add(nn.Conv2DTranspose(
                             seg_channels, 2, 2, 0, weight_initializer=init))
                 self.seghead.add(block)
@@ -47,8 +95,7 @@ class SegHead(nn.HybridBlock):
             seg_feats.append(f)
         seg_feats = F.add_n(*seg_feats)
         out = self.seg_predictor(seg_feats)
-        if autograd.is_training():
-            out = F.softmax(out, axis=1)
+        out = F.softmax(out, axis=1)
         return out
 
 
@@ -118,7 +165,7 @@ def panoptic_fpn_resnet50_v1b_citys(pretrained=False, pretrained_base=True, **kw
         seg_classes=seg_classes, box_features=box_features, mask_channels=256,
         seg_channels=128, rcnn_max_dets=1000, min_stage=2, max_stage=6,
         train_patterns=train_patterns, nms_thresh=0.5, nms_topk=-1, post_nms=-1,
-        roi_mode='align', roi_size=(14, 14), strides=(4, 8, 16, 32, 64),
+        roi_mode='align', roi_size=(7, 7), strides=(4, 8, 16, 32, 64),
         clip=4.42, rpn_channel=1024, base_size=16, scales=(2, 4, 8, 16, 32),
         ratios=(0.5, 1, 2), alloc_size=(512, 512), rpn_nms_thresh=0.7,
         rpn_train_pre_nms=12000, rpn_train_post_nms=2000, rpn_test_pre_nms=6000,
@@ -126,4 +173,36 @@ def panoptic_fpn_resnet50_v1b_citys(pretrained=False, pretrained_base=True, **kw
         pos_ratio=0.25, deep_fcn=True, **kwargs)
 
 def panoptic_fpn_resnet101_v1d_citys(pretrained=False, pretrained_base=True, **kwargs):
-    pass
+    from ..resnetv1b import resnet101_v1d
+    from ...data import CitysPanoptic
+    mask_classes = CitysPanoptic.MASK_CLASS
+    seg_classes = CitysPanoptic.SEG_CLASS
+    seg_classes.extend(mask_classes)
+    pretrained_base = False if pretrained else pretrained_base
+    base_network = resnet101_v1d(pretrained=pretrained_base, dilated=False, use_global_stats=True)
+    features = FPNFeatureExpander(
+        network=base_network, use_p6=True, no_bias=False, pretrained=pretrained_base,
+        outputs=['layers1_relu8_fwd', 'layers2_relu11_fwd', 'layers3_relu68_fwd',
+                 'layers4_relu8_fwd'], num_filters=[256, 256, 256, 256])
+
+    top_features = None
+    box_features = nn.HybridSequential()
+    box_features.add(nn.AvgPool2D(pool_size=(3, 3), strides=2, padding=1))  # reduce to 7x7
+    for _ in range(2):
+        box_features.add(nn.Dense(1024, weight_initializer=mx.init.Normal(0.01)),
+                         nn.Activation('relu'))
+    train_patterns = '|'.join(['.*dense', '.*rpn', '.*mask', 'P',
+                               '.*down(2|3|4)_conv', '.*layers(2|3|4)_conv'])
+
+    return get_panoptic_fpn(
+        name='resnet50_v1b', dataset='citys', pretrained=pretrained,
+        features=features, top_features=top_features, mask_classes=mask_classes,
+        seg_classes=seg_classes, box_features=box_features, mask_channels=256,
+        seg_channels=128, rcnn_max_dets=1000, min_stage=2, max_stage=6,
+        train_patterns=train_patterns, nms_thresh=0.5, nms_topk=-1, post_nms=-1,
+        roi_mode='align', roi_size=(7, 7), strides=(4, 8, 16, 32, 64),
+        clip=4.42, rpn_channel=1024, base_size=16, scales=(2, 4, 8, 16, 32),
+        ratios=(0.5, 1, 2), alloc_size=(512, 512), rpn_nms_thresh=0.7,
+        rpn_train_pre_nms=12000, rpn_train_post_nms=2000, rpn_test_pre_nms=6000,
+        rpn_test_post_nms=1000, rpn_min_size=0, num_sample=512, pos_iou_thresh=0.5,
+        pos_ratio=0.25, deep_fcn=True, **kwargs)
