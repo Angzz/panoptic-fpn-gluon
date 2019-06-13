@@ -79,7 +79,8 @@ class CitysPanoptic(VisionDataset):
 
         # random crop
         ch, cw = self.crop_size
-        short_size = random.randint(int(self.base_size*0.5), int(self.base_size*2.0))
+        short_size = random.randint(
+                int(self.base_size*0.5), int(self.base_size*2.0))
         w, h = img.size
         if h > w:
             ow = short_size
@@ -116,10 +117,6 @@ class CitysPanoptic(VisionDataset):
             img = ImageOps.expand(img, border=(0, 0, padw, padh), fill=0)
             segm = cv2.copyMakeBorder(segm, 0, padh, 0, padw, cv2.BORDER_CONSTANT, value=0)
             inst = cv2.copyMakeBorder(inst, 0, padh, 0, padw, cv2.BORDER_CONSTANT, value=0)
-        # gaussian blur as in PSP
-        if random.random() < 0.5:
-            img = img.filter(ImageFilter.GaussianBlur(
-                radius=random.random()))
 
         # transform inst to binary map
         binst = []

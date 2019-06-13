@@ -165,7 +165,7 @@ def panoptic_fpn_resnet50_v1b_citys(pretrained=False, pretrained_base=True, **kw
         seg_classes=seg_classes, box_features=box_features, mask_channels=256,
         seg_channels=128, rcnn_max_dets=1000, min_stage=2, max_stage=6,
         train_patterns=train_patterns, nms_thresh=0.5, nms_topk=-1, post_nms=-1,
-        roi_mode='align', roi_size=(7, 7), strides=(4, 8, 16, 32, 64),
+        roi_mode='align', roi_size=(14, 14), strides=(4, 8, 16, 32, 64),
         clip=4.42, rpn_channel=1024, base_size=16, scales=(2, 4, 8, 16, 32),
         ratios=(0.5, 1, 2), alloc_size=(512, 512), rpn_nms_thresh=0.7,
         rpn_train_pre_nms=12000, rpn_train_post_nms=2000, rpn_test_pre_nms=6000,
@@ -195,12 +195,12 @@ def panoptic_fpn_resnet101_v1d_citys(pretrained=False, pretrained_base=True, **k
                                '.*down(2|3|4)_conv', '.*layers(2|3|4)_conv'])
 
     return get_panoptic_fpn(
-        name='resnet50_v1b', dataset='citys', pretrained=pretrained,
+        name='resne101_v1d', dataset='citys', pretrained=pretrained,
         features=features, top_features=top_features, mask_classes=mask_classes,
         seg_classes=seg_classes, box_features=box_features, mask_channels=256,
         seg_channels=128, rcnn_max_dets=1000, min_stage=2, max_stage=6,
         train_patterns=train_patterns, nms_thresh=0.5, nms_topk=-1, post_nms=-1,
-        roi_mode='align', roi_size=(7, 7), strides=(4, 8, 16, 32, 64),
+        roi_mode='align', roi_size=(14, 14), strides=(4, 8, 16, 32, 64),
         clip=4.42, rpn_channel=1024, base_size=16, scales=(2, 4, 8, 16, 32),
         ratios=(0.5, 1, 2), alloc_size=(512, 512), rpn_nms_thresh=0.7,
         rpn_train_pre_nms=12000, rpn_train_post_nms=2000, rpn_test_pre_nms=6000,
