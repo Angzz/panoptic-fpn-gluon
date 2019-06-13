@@ -102,6 +102,7 @@ def validate(net, val_data, ctx, eval_metric, size):
                     valid = np.where(((det_id >= 0) & (det_score >= 0.001)))[0]
                     det_id = det_id[valid]
                     det_score = det_score[valid]
+                    from IPython import embed; embed()
                     det_bbox = det_bbox[valid] / im_scale
                     det_mask = det_mask[valid]
                     # fill full mask

@@ -206,6 +206,7 @@ _models = {
     'ssd_512_resnet50_v1_voc_int8': ssd_512_resnet50_v1_voc_int8,
     'ssd_512_vgg16_atrous_voc_int8': ssd_512_vgg16_atrous_voc_int8,
     'panoptic_fpn_resnet50_v1b_citys': panoptic_fpn_resnet50_v1b_citys,
+    'panoptic_fpn_resnet101_v1d_citys': panoptic_fpn_resnet101_v1d_citys,
 }
 
 

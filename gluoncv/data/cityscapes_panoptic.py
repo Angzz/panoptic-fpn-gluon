@@ -150,9 +150,10 @@ class CitysPanoptic(VisionDataset):
             img = mx.nd.image.normalize(img, mean=self._mean, std=self._std)
             mask = mx.nd.array(mask).astype('int32')
             mask = mx.nd.image.to_tensor(mask)
+            im_info = mx.nd.array([img.shape[-2], img.shape[-1], 1.])
             if self._transform is not None:
                 return self._transform(img, mask)
-            return img, mask
+            return img, im_info
 
     def _img_transform(self, img):
         return mx.nd.array(np.array(img), ctx=mx.cpu(0))
